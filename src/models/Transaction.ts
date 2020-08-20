@@ -24,11 +24,12 @@ class Transaction {
   @Column('decimal')
   value: number;
 
+  /* A coluna que vai ser utilizada para fazer esse relacionamento */
   @ManyToOne(() => Category)
-  @JoinColumn({
-    name:
-      'category_id' /* A coluna que vai ser utilizada para fazer esse relacionamento */,
-  })
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
+
+  @Column()
   category_id: string;
 
   @CreateDateColumn()
