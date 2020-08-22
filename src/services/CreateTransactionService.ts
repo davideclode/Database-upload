@@ -1,10 +1,10 @@
-// import AppError from '../errors/AppError';
 import { getCustomRepository, getRepository } from 'typeorm';
+import AppError from '../errors/AppError';
 
 import TransactionsRepository from '../repositories/TransactionsRepository';
 
 import Transaction from '../models/Transaction';
-import Category from '../models/Category';
+import Category from '../models/Category'; /* Importação da model Category */
 
 interface Request {
   // Informar dados da transação aqui
@@ -23,12 +23,19 @@ class CreateTransactionService {
   }: Request): Promise<Transaction> {
     // TODO
     const transactionsRepository = getCustomRepository(TransactionsRepository);
-    /* Ele vai criar repository a partir da nossa model */
+    /* Ele vai criar repository a partir da nossa model Category passando a model Category */
     const categoryRepository = getRepository(Category);
 
-    // Verificar se a categoria já existe
+    // Criando a regra que: Não pode haver "outcome" sem um saldo(balance) válido
+    const { total } = await transactionsRepository.getBalance();
+    if (type === 'outcome' && total < value) {
+      throw new AppError("You don't have anough balance");
+    }
+
+    // Verificar se há no DB registro que tenha título(title) chamado "category"
     let transactionCategory = await categoryRepository.findOne({
       where: {
+        // Quando título da categoria é igual ao nome da categoria
         title: category,
       },
     });
